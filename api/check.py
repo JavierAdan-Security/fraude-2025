@@ -2,9 +2,9 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET'])
-@app.route('/api/check', methods=['GET'])
-def handler():
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def handler(path):
     # Propiedad de Javier Gutierrez Adan © 2025
     email = request.args.get('email', 'test@test.com')
 
