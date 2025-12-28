@@ -2,9 +2,14 @@ from http.server import BaseHTTPRequestHandler
 import requests
 import json
 import os
+from urllib.parse import urlparse, parse_qs
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
+        # Parse URL and query parameters
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+        
         # Headers CORS
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
@@ -14,17 +19,17 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
         # Obtener el parámetro 'text' de la query string
-        if '?text=' in self.path:
-            text = self.path.split('?text=')[1]
-        else:
+        if 'text' not in query_params:
             response = {'error': 'Falta el parámetro text'}
             self.wfile.write(json.dumps(response).encode())
             return
 
+        text = query_params['text'][0]
+
         # Configurar la API de RapidAPI
         url = "https://twinword-text-analysis-bundle.p.rapidapi.com/analyze/"
         headers = {
-            "x-rapidapi-key": os.environ.get('RAPIDAPI_KEY'),
+            "x-rapidapi-key": os.environ.get('RAPIDAPI_KEY', ''),
             "x-rapidapi-host": "twinword-text-analysis-bundle.p.rapidapi.com"
         }
         params = {"text": text}
